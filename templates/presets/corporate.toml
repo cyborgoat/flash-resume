@@ -1,0 +1,37 @@
+# Corporate/Conservative Resume Preset
+[theme]
+active = "minimal-1"
+
+[style]
+primary_font = "New Computer Modern"
+header_font = "New Computer Modern"
+font_size = "11pt"
+header_font_size = "22pt"
+accent_color = "#000000"
+text_color = "#000000"
+link_color = "#000000"
+header_color = "#000000"
+paper_size = "us-letter"
+margins = "0.75in"
+line_spacing = "0.6em"
+
+[formatting]
+show_section_lines = true
+section_spacing = "0.5em"
+entry_spacing = "0.3em"
+author_position = "center"
+contact_position = "center"
+contact_separator = " • "
+
+[features]
+colored_headers = false
+show_footer = false
+show_icons = false
+profile_picture = false
+show_date = false
+date_format = "[month repr:long] [day], [year]"
+
+[advanced]
+disable_ligatures = true
+justify_text = true
+hyphenation = false

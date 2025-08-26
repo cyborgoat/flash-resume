@@ -1,0 +1,36 @@
+[theme]
+active = "minimal-1"
+
+[style]
+primary_font = "Arial"
+header_font = "Arial"
+font_size = "10pt"
+header_font_size = "20pt"
+accent_color = "#4c20eaff"
+text_color = "#d03d3dff"
+link_color = "#309605ff"
+header_color = "#26428b"
+paper_size = "a4"
+margins = "0.5in"
+line_spacing = "0.5em"
+
+[formatting]
+show_section_lines = true
+section_spacing = "0.4em"
+entry_spacing = "0.25em"
+author_position = "left"  # Options: "left", "center", "right"
+contact_position = "left"  # Options: "left", "center", "right"
+contact_separator = "  |  "
+
+[features]
+colored_headers = true
+show_footer = false
+show_icons = true
+profile_picture = false
+show_date = true
+date_format = "[month repr:long] [day], [year]"
+
+[advanced]
+disable_ligatures = "true  # Better for ATS systems"
+justify_text = true
+hyphenation = false

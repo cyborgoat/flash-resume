@@ -1,0 +1,37 @@
+# Creative/Design Resume Preset
+[theme]
+active = "minimal-2"
+
+[style]
+primary_font = "Source Sans Pro"
+header_font = "Roboto"
+font_size = "10pt"
+header_font_size = "24pt"
+accent_color = "#7c3aed"
+text_color = "#1f2937"
+link_color = "#7c3aed"
+header_color = "#7c3aed"
+paper_size = "us-letter"
+margins = "0.4in"
+line_spacing = "0.5em"
+
+[formatting]
+show_section_lines = true
+section_spacing = "0.3em"
+entry_spacing = "0.2em"
+author_position = "left"
+contact_position = "left"
+contact_separator = " • "
+
+[features]
+colored_headers = true
+show_footer = true
+show_icons = true
+profile_picture = true
+show_date = true
+date_format = "[month repr:long] [year]"
+
+[advanced]
+disable_ligatures = false
+justify_text = true
+hyphenation = true

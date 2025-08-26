@@ -1,0 +1,25 @@
+# for a description of available keys, see https://github.com/typst/packages/?tab=readme-ov-file#package-format
+
+[package]
+name = "fastdoc-resume"
+version = "0.0.1"
+entrypoint = "src/lib.typ"
+authors = ["Junxiao Guo [http://cyborgoat.github.io/]"]
+license = "MIT"
+description = "A simple, standard resume."
+repository = "https://github.com/cyborgoat/fastdoc"
+keywords = ["cv", "resume"]
+categories = ["cv"]
+exclude = [
+	".github",
+	"docs",
+	"scripts",
+	"tests",
+	".typstignore",
+	"Justfile",
+]
+
+[template]
+path = "template"
+entrypoint = "main.typ"
+thumbnail = "thumbnail.png"
