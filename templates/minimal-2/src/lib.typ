@@ -1,4 +1,4 @@
-#import "utils/linguify/0.4.1/lib/lib.typ": *
+#import "utils/linguify/0.4.2/src/lib.typ": *
 
 // const color
 #let color-darknight = rgb("#131A28")

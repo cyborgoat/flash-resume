@@ -6,9 +6,11 @@ interface TypstPreviewProps {
   content: string
   isCompiling?: boolean
   onRefresh?: () => void
+  pdfUrl?: string | null
+  error?: string | null
 }
 
-export function TypstPreview({ content, isCompiling = false, onRefresh }: TypstPreviewProps) {
+export function TypstPreview({ content, isCompiling = false, onRefresh, pdfUrl, error }: TypstPreviewProps) {
   const [viewMode, setViewMode] = useState<'source' | 'preview'>('source')
 
   return (
@@ -55,7 +57,14 @@ export function TypstPreview({ content, isCompiling = false, onRefresh }: TypstP
 
       {/* Preview Content */}
       <div className="flex-1 overflow-auto">
-        {viewMode === 'source' ? (
+        {error ? (
+          <div className="p-4">
+            <div className="bg-red-50 border border-red-200 rounded-lg p-4">
+              <h3 className="text-red-800 font-medium mb-2">Compilation Error</h3>
+              <pre className="text-red-700 text-sm whitespace-pre-wrap">{error}</pre>
+            </div>
+          </div>
+        ) : viewMode === 'source' ? (
           <div className="p-4">
             <div className="bg-white rounded-lg border border-gray-200 p-4 h-full">
               <pre className="whitespace-pre-wrap font-mono text-xs text-gray-700 leading-relaxed">
@@ -64,21 +73,30 @@ export function TypstPreview({ content, isCompiling = false, onRefresh }: TypstP
             </div>
           </div>
         ) : (
-          <div className="p-4">
-            {/* PDF Preview Placeholder */}
-            <div className="bg-white rounded-lg border border-gray-200 p-8 h-full flex flex-col items-center justify-center text-gray-500">
-              <div className="w-32 h-40 bg-gray-100 border-2 border-dashed border-gray-300 rounded-lg flex items-center justify-center mb-4">
-                <FileText className="w-8 h-8 text-gray-400" />
+          <div className="p-4 h-full">
+            {pdfUrl ? (
+              <div className="bg-white rounded-lg border border-gray-200 h-full">
+                <iframe
+                  src={pdfUrl}
+                  className="w-full h-full rounded-lg"
+                  title="PDF Preview"
+                />
               </div>
-              <h3 className="text-sm font-medium text-gray-900 mb-2">PDF Preview</h3>
-              <p className="text-xs text-center text-gray-600 mb-4">
-                The compiled PDF will appear here once the Typst compilation is implemented.
-              </p>
-              <Button size="sm" variant="outline" disabled>
-                <Download className="w-3 h-3 mr-1" />
-                Download PDF
-              </Button>
-            </div>
+            ) : (
+              <div className="bg-white rounded-lg border border-gray-200 p-8 h-full flex flex-col items-center justify-center text-gray-500">
+                <div className="w-32 h-40 bg-gray-100 border-2 border-dashed border-gray-300 rounded-lg flex items-center justify-center mb-4">
+                  <FileText className="w-8 h-8 text-gray-400" />
+                </div>
+                <h3 className="text-sm font-medium text-gray-900 mb-2">PDF Preview</h3>
+                <p className="text-xs text-center text-gray-600 mb-4">
+                  Click "Compile" to generate and preview your resume PDF.
+                </p>
+                <Button size="sm" variant="outline" disabled>
+                  <Download className="w-3 h-3 mr-1" />
+                  No PDF Available
+                </Button>
+              </div>
+            )}
           </div>
         )}
       </div>
@@ -90,8 +108,16 @@ export function TypstPreview({ content, isCompiling = false, onRefresh }: TypstP
             Lines: {content.split('\n').length} | 
             Chars: {content.length}
           </span>
-          <span className="text-blue-600">
-            Ready for compilation
+          <span className={`${
+            error ? 'text-red-600' : 
+            pdfUrl ? 'text-green-600' : 
+            isCompiling ? 'text-yellow-600' : 
+            'text-blue-600'
+          }`}>
+            {error ? 'Compilation Error' :
+             pdfUrl ? 'PDF Ready' :
+             isCompiling ? 'Compiling...' :
+             'Ready to Compile'}
           </span>
         </div>
       </div>
