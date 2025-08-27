@@ -131,6 +131,32 @@ async def get_template_content():
         logger.error(f"Error reading template: {str(e)}")
         raise HTTPException(status_code=500, detail=f"Error reading template: {str(e)}")
 
+@app.get("/editable-content")
+async def get_editable_content():
+    """Get only the editable content (personal information onwards) for the editor."""
+    try:
+        main_template = TEMPLATES_DIR / "main.typ"
+        if not main_template.exists():
+            raise HTTPException(status_code=404, detail="Template main.typ not found")
+        
+        content = main_template.read_text()
+        
+        # Extract only the editable content (from personal information onwards)
+        editable_start_marker = "// ==============================================================================\n// PERSONAL INFORMATION\n// =============================================================================="
+        editable_start = content.find(editable_start_marker)
+        
+        if editable_start != -1:
+            editable_content = content[editable_start:]
+        else:
+            # Fallback if marker not found
+            editable_content = content
+        
+        return {"content": editable_content}
+        
+    except Exception as e:
+        logger.error(f"Error reading editable content: {str(e)}")
+        raise HTTPException(status_code=500, detail=f"Error reading editable content: {str(e)}")
+
 @app.get("/config")
 async def get_config():
     """Get the current configuration."""

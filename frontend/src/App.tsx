@@ -1,9 +1,17 @@
 import { useState, useEffect } from 'react'
 import { Button } from './components/ui/button'
-import { FileText, Play, Download, Save, FolderOpen } from 'lucide-react'
+import { FileText, Play, Download } from 'lucide-react'
 import { TypstEditor } from './components/TypstEditor'
 import { TypstPreview } from './components/TypstPreview'
 import { ConfigPanel } from './components/ConfigPanel'
+import {
+  NavigationMenu,
+  NavigationMenuContent,
+  NavigationMenuItem,
+  NavigationMenuLink,
+  NavigationMenuList,
+  NavigationMenuTrigger,
+} from './components/ui/navigation-menu'
 import './App.css'
 
 function App() {
@@ -13,49 +21,137 @@ function App() {
   const [pdfUrl, setPdfUrl] = useState<string | null>(null)
   const [compilationError, setCompilationError] = useState<string | null>(null)
   const [isLoading, setIsLoading] = useState(true)
+  const [currentTheme, setCurrentTheme] = useState('minimal-1')
+
+  // Load current theme from config
+  const loadCurrentTheme = async () => {
+    try {
+      const response = await fetch('http://localhost:8000/config')
+      if (response.ok) {
+        const data = await response.json()
+        // Parse TOML content to extract theme
+        const configContent = data.content
+        const themeMatch = configContent.match(/active\s*=\s*"([^"]+)"/)
+        if (themeMatch) {
+          setCurrentTheme(themeMatch[1])
+        }
+      }
+    } catch (error) {
+      console.error('Error loading theme:', error)
+    }
+  }
+
+  // Switch theme by updating config
+  const handleThemeSwitch = async (newTheme: string) => {
+    try {
+      // Get current config
+      const configResponse = await fetch('http://localhost:8000/config')
+      if (!configResponse.ok) return
+      
+      const configData = await configResponse.json()
+      const currentConfig = configData.content
+      
+      // Update theme in config
+      const updatedConfig = currentConfig.replace(
+        /active\s*=\s*"[^"]+"/,
+        `active = "${newTheme}"`
+      )
+      
+      // Save updated config
+      const formData = new FormData()
+      formData.append('content', updatedConfig)
+      
+      const updateResponse = await fetch('http://localhost:8000/update-config', {
+        method: 'POST',
+        body: formData,
+      })
+      
+      if (updateResponse.ok) {
+        setCurrentTheme(newTheme)
+        setCompiledOutput(`Theme switched to ${newTheme}. Click "Compile" to see changes.`)
+        // Clear current PDF to force recompilation
+        setPdfUrl(null)
+      }
+    } catch (error) {
+      console.error('Error switching theme:', error)
+    }
+  }
 
   // Load template content on component mount
   useEffect(() => {
     const loadTemplateContent = async () => {
       try {
-        const response = await fetch('http://localhost:8000/template-content')
+        const response = await fetch('http://localhost:8000/editable-content')
         if (response.ok) {
           const data = await response.json()
           setTypstContent(data.content)
           setCompiledOutput('Template loaded. Click "Compile" to generate PDF.')
         } else {
           console.error('Failed to load template content')
-          setTypstContent(`#set page(
-  paper: "a4",
-  margin: (x: 1.8cm, y: 1.5cm),
+          setTypstContent(`// ==============================================================================
+// PERSONAL INFORMATION
+// ==============================================================================
+// Put your personal information here, replacing the example data
+#let author-info = (
+  firstname: "Your First",
+  lastname: "Name",
+  email: "your.email@example.com",
+  homepage: "https://yourwebsite.com",
+  phone: "(+1) 555-123-4567",
+  github: "your-github",
+  twitter: "your-twitter",
+  scholar: "your-scholar-id",
+  orcid: "0000-0000-0000-0000",
+  birth: "Your Birth Date",
+  linkedin: "your-linkedin",
+  address: "Your Address",
+  positions: (
+    "Your Job Title",
+    "Another Position",
+  ),
 )
-#set text(
-  font: "Linux Libertine",
-  size: 11pt,
+
+// ==============================================================================
+// RESUME CONTENT
+// ==============================================================================
+
+= Education
+
+#education(
+  school: "Your University",
+  degree: "Your Degree",
+  date: "Start Date - End Date",
+  location: "City, State",
+  gpa: "X.X/4.0",
+  honors: "Any honors or distinctions",
+  courses: "Relevant coursework",
 )
 
-= Resume
+= Experience
 
-== Personal Information
-*Name:* Your Name \\
-*Email:* your.email@example.com \\
-*Phone:* +1 (555) 123-4567
+#experience(
+  company: "Company Name",
+  position: "Your Position",
+  date: "Start Date - End Date",
+  location: "City, State",
+  description: [
+    - Your key accomplishment or responsibility
+    - Another achievement with specific metrics
+    - Third bullet point describing your impact
+  ],
+)
 
-== Experience
-*Software Engineer* | Company Name | 2022 - Present
-- Developed applications using modern technologies
-- Collaborated with cross-functional teams
-- Improved system performance
+= Skills
 
-== Education
-*Degree* | University Name | Year
-- Relevant coursework and achievements
-
-== Skills
-- Programming Languages: Python, JavaScript, TypeScript
-- Frameworks: React, Node.js
-- Tools: Git, Docker, VS Code`)
+#skill(
+  category: "Programming Languages",
+  skills: "Python, JavaScript, etc.",
+)`)
         }
+        
+        // Load current theme from config
+        await loadCurrentTheme()
+        
       } catch (error) {
         console.error('Error loading template:', error)
         setTypstContent('// Error loading template. Please check your connection.')
@@ -72,8 +168,27 @@ function App() {
     setCompilationError(null)
     
     try {
+      // Get the full template to extract the header
+      const templateResponse = await fetch('http://localhost:8000/template-content')
+      if (!templateResponse.ok) {
+        throw new Error('Failed to load template header')
+      }
+      
+      const templateData = await templateResponse.json()
+      const fullTemplate = templateData.content
+      const editableStartMarker = '// ==============================================================================\n// PERSONAL INFORMATION\n// =============================================================================='
+      const editableStart = fullTemplate.indexOf(editableStartMarker)
+      
+      let templateHeader = ''
+      if (editableStart !== -1) {
+        templateHeader = fullTemplate.substring(0, editableStart)
+      }
+      
+      // Combine template header with user content
+      const fullContent = templateHeader + typstContent
+      
       const formData = new FormData()
-      formData.append('content', typstContent)
+      formData.append('content', fullContent)
       
       const response = await fetch('http://localhost:8000/compile', {
         method: 'POST',
@@ -149,24 +264,20 @@ function App() {
   return (
     <div className="h-screen flex flex-col bg-gray-50">
       {/* Header */}
-      <header className="bg-white border-b border-gray-200 px-6 py-3 flex items-center justify-between shadow-sm">
-        <div className="flex items-center gap-3">
-          <FileText className="w-7 h-7 text-blue-600" />
-          <div>
-            <h1 className="text-xl font-semibold text-gray-900">Flash Resume</h1>
-            <p className="text-xs text-gray-600">Typst Resume Compiler</p>
+            {/* Header */}
+      <header className="border-b border-gray-200 bg-white px-6 py-3">
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-3">
+            <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-blue-600">
+              <FileText className="h-5 w-5 text-white" />
+            </div>
+            <div>
+              <h1 className="text-xl font-semibold text-gray-900">Flash Resume</h1>
+              <p className="text-xs text-gray-600">Typst Resume Compiler</p>
+            </div>
           </div>
-        </div>
         
-        <div className="flex items-center gap-2">
-          <Button variant="outline" size="sm" className="flex items-center gap-2">
-            <FolderOpen className="w-4 h-4" />
-            Open
-          </Button>
-          <Button variant="outline" size="sm" className="flex items-center gap-2">
-            <Save className="w-4 h-4" />
-            Save
-          </Button>
+        <div className="flex items-center gap-3">
           <Button 
             onClick={handleCompileTemplate}
             variant="outline" 
@@ -176,7 +287,44 @@ function App() {
             <FileText className="w-4 h-4" />
             Load Template
           </Button>
-          <div className="w-px h-6 bg-gray-300 mx-1" />
+          
+          {/* Theme Selection Dropdown */}
+          <NavigationMenu>
+            <NavigationMenuList>
+              <NavigationMenuItem>
+                <NavigationMenuTrigger className="h-9 text-sm font-medium">
+                  Theme: {currentTheme === 'minimal-1' ? 'Minimal 1' : 'Minimal 2'}
+                </NavigationMenuTrigger>
+                <NavigationMenuContent>
+                  <div className="grid gap-1 p-2 w-64">
+                    <NavigationMenuLink asChild>
+                      <button
+                        onClick={() => handleThemeSwitch('minimal-1')}
+                        className={`flex flex-col items-start gap-1 rounded-md p-3 hover:bg-accent hover:text-accent-foreground focus:bg-accent focus:text-accent-foreground transition-colors outline-none ${
+                          currentTheme === 'minimal-1' ? 'bg-accent text-accent-foreground' : ''
+                        }`}
+                      >
+                        <div className="text-sm font-medium">Minimal 1</div>
+                        <div className="text-xs text-muted-foreground">Clean and simple professional layout</div>
+                      </button>
+                    </NavigationMenuLink>
+                    <NavigationMenuLink asChild>
+                      <button
+                        onClick={() => handleThemeSwitch('minimal-2')}
+                        className={`flex flex-col items-start gap-1 rounded-md p-3 hover:bg-accent hover:text-accent-foreground focus:bg-accent focus:text-accent-foreground transition-colors outline-none ${
+                          currentTheme === 'minimal-2' ? 'bg-accent text-accent-foreground' : ''
+                        }`}
+                      >
+                        <div className="text-sm font-medium">Minimal 2</div>
+                        <div className="text-xs text-muted-foreground">Enhanced design with icons and multi-language support</div>
+                      </button>
+                    </NavigationMenuLink>
+                  </div>
+                </NavigationMenuContent>
+              </NavigationMenuItem>
+            </NavigationMenuList>
+          </NavigationMenu>
+          
           <Button 
             onClick={handleCompile} 
             disabled={isCompiling}
@@ -197,6 +345,7 @@ function App() {
             Export PDF
           </Button>
           <ConfigPanel onConfigUpdate={handleRefresh} />
+        </div>
         </div>
       </header>
 

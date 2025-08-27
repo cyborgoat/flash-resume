@@ -1,5 +1,5 @@
 [theme]
-active = "minimal-1"
+active = "minimal-2"
 
 [style]
 primary_font = "Arial"
@@ -18,8 +18,8 @@ line_spacing = "0.5em"
 show_section_lines = true
 section_spacing = "0.4em"
 entry_spacing = "0.25em"
-author_position = "left"  # Options: "left", "center", "right"
-contact_position = "left"  # Options: "left", "center", "right"
+author_position = "left"
+contact_position = "left"
 contact_separator = "  |  "
 
 [features]
@@ -31,6 +31,6 @@ show_date = true
 date_format = "[month repr:long] [day], [year]"
 
 [advanced]
-disable_ligatures = "true  # Better for ATS systems"
+disable_ligatures = "true"
 justify_text = true
 hyphenation = false
