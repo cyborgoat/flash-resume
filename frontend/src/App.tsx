@@ -1,9 +1,10 @@
 import { useState, useEffect } from 'react'
 import { Button } from './components/ui/button'
-import { FileText, Play, Download } from 'lucide-react'
+import { FileText, Play, Download, Palette, Settings, Zap } from 'lucide-react'
 import { TypstEditor } from './components/TypstEditor'
 import { TypstPreview } from './components/TypstPreview'
 import { ConfigPanel } from './components/ConfigPanel'
+import { BlockEditor } from './components/BlockEditor'
 import {
   NavigationMenu,
   NavigationMenuContent,
@@ -264,59 +265,62 @@ function App() {
   return (
     <div className="h-screen flex flex-col bg-gray-50">
       {/* Header */}
-            {/* Header */}
-      <header className="border-b border-gray-200 bg-white px-6 py-3">
+      <header className="border-b border-gray-200 bg-white px-4 py-2">
         <div className="flex items-center justify-between">
-          <div className="flex items-center gap-3">
-            <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-blue-600">
-              <FileText className="h-5 w-5 text-white" />
+          <div className="flex items-center gap-2">
+            <div className="flex h-6 w-6 items-center justify-center rounded bg-blue-600">
+              <Zap className="h-3 w-3 text-white" />
             </div>
-            <div>
-              <h1 className="text-xl font-semibold text-gray-900">Flash Resume</h1>
-              <p className="text-xs text-gray-600">Typst Resume Compiler</p>
-            </div>
+            <span className="text-sm font-medium text-gray-900">ResumeForge</span>
           </div>
         
-        <div className="flex items-center gap-3">
+        <div className="flex items-center gap-2">
           <Button 
             onClick={handleCompileTemplate}
-            variant="outline" 
+            variant="ghost" 
             size="sm" 
-            className="flex items-center gap-2"
+            className="flex items-center gap-1 text-xs"
           >
-            <FileText className="w-4 h-4" />
-            Load Template
+            <FileText className="w-3 h-3" />
+            Template
           </Button>
           
           {/* Theme Selection Dropdown */}
           <NavigationMenu>
             <NavigationMenuList>
               <NavigationMenuItem>
-                <NavigationMenuTrigger className="h-9 text-sm font-medium">
-                  Theme: {currentTheme === 'minimal-1' ? 'Minimal 1' : 'Minimal 2'}
+                <NavigationMenuTrigger className="h-8 text-xs font-medium flex items-center gap-1">
+                  <Palette className="w-3 h-3" />
+                  {currentTheme === 'minimal-1' ? 'Theme 1' : 'Theme 2'}
                 </NavigationMenuTrigger>
                 <NavigationMenuContent>
-                  <div className="grid gap-1 p-2 w-64">
+                  <div className="grid gap-1 p-2 w-48">
                     <NavigationMenuLink asChild>
                       <button
                         onClick={() => handleThemeSwitch('minimal-1')}
-                        className={`flex flex-col items-start gap-1 rounded-md p-3 hover:bg-accent hover:text-accent-foreground focus:bg-accent focus:text-accent-foreground transition-colors outline-none ${
-                          currentTheme === 'minimal-1' ? 'bg-accent text-accent-foreground' : ''
+                        className={`flex items-start gap-2 rounded-md p-2 hover:bg-accent transition-colors text-left text-xs ${
+                          currentTheme === 'minimal-1' ? 'bg-accent' : ''
                         }`}
                       >
-                        <div className="text-sm font-medium">Minimal 1</div>
-                        <div className="text-xs text-muted-foreground">Clean and simple professional layout</div>
+                        <div className="w-2 h-2 rounded bg-blue-500 mt-1"></div>
+                        <div>
+                          <div className="font-medium">Theme 1</div>
+                          <div className="text-gray-500">Clean & minimal</div>
+                        </div>
                       </button>
                     </NavigationMenuLink>
                     <NavigationMenuLink asChild>
                       <button
                         onClick={() => handleThemeSwitch('minimal-2')}
-                        className={`flex flex-col items-start gap-1 rounded-md p-3 hover:bg-accent hover:text-accent-foreground focus:bg-accent focus:text-accent-foreground transition-colors outline-none ${
-                          currentTheme === 'minimal-2' ? 'bg-accent text-accent-foreground' : ''
+                        className={`flex items-start gap-2 rounded-md p-2 hover:bg-accent transition-colors text-left text-xs ${
+                          currentTheme === 'minimal-2' ? 'bg-accent' : ''
                         }`}
                       >
-                        <div className="text-sm font-medium">Minimal 2</div>
-                        <div className="text-xs text-muted-foreground">Enhanced design with icons and multi-language support</div>
+                        <div className="w-2 h-2 rounded bg-green-500 mt-1"></div>
+                        <div>
+                          <div className="font-medium">Theme 2</div>
+                          <div className="text-gray-500">Enhanced design</div>
+                        </div>
                       </button>
                     </NavigationMenuLink>
                   </div>
@@ -328,21 +332,21 @@ function App() {
           <Button 
             onClick={handleCompile} 
             disabled={isCompiling}
-            className="flex items-center gap-2"
+            className="flex items-center gap-1 h-8 text-xs"
             size="sm"
           >
-            <Play className="w-4 h-4" />
+            <Play className="w-3 h-3" />
             {isCompiling ? 'Compiling...' : 'Compile'}
           </Button>
           <Button 
-            variant="outline" 
+            variant="ghost" 
             size="sm" 
-            className="flex items-center gap-2"
+            className="flex items-center gap-1 text-xs h-8"
             onClick={handleDownloadPdf}
             disabled={!pdfUrl}
           >
-            <Download className="w-4 h-4" />
-            Export PDF
+            <Download className="w-3 h-3" />
+            Export
           </Button>
           <ConfigPanel onConfigUpdate={handleRefresh} />
         </div>
@@ -363,10 +367,9 @@ function App() {
                 <div className="text-gray-500">Loading template...</div>
               </div>
             ) : (
-              <TypstEditor
-                value={typstContent}
+              <BlockEditor
+                content={typstContent}
                 onChange={setTypstContent}
-                placeholder="Loading template content..."
               />
             )}
           </div>
