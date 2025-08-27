@@ -1,0 +1,35 @@
+/* Reset and base styles for the Typst compiler app */
+.h-screen {
+  height: 100vh;
+}
+
+/* Ensure proper scrolling in editor and preview panels */
+.prose pre {
+  max-height: none;
+  overflow: visible;
+}
+
+/* Custom scrollbar for better UX */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: #f1f1f1;
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #c1c1c1;
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #a8a8a8;
+}
+
+/* Ensure full height for textarea */
+.h-full textarea {
+  min-height: calc(100vh - 200px);
+}
