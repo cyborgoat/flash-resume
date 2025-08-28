@@ -194,23 +194,26 @@ function App() {
   return (
     <div className="h-screen flex flex-col bg-gray-50">
       {/* Header */}
-      <header className="border-b border-gray-200 bg-white px-4 py-2">
-        <div className="flex items-center justify-between">
-          <div className="flex items-center gap-2">
-            <div className="flex h-6 w-6 items-center justify-center rounded bg-blue-600">
-              <Zap className="h-3 w-3 text-white" />
+      <header className="border-b border-gray-200 bg-white px-6 py-3 shadow-sm">
+        <div className="flex items-center justify-between max-w-7xl mx-auto">
+          <div className="flex items-center gap-3">
+            <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-gradient-to-r from-gray-700 to-gray-800">
+              <Zap className="h-4 w-4 text-white" />
             </div>
-            <span className="text-sm font-medium text-gray-900">ResumeForge</span>
+            <div>
+              <span className="text-lg font-semibold text-gray-900">ResumeForge</span>
+              <span className="hidden sm:inline text-sm text-gray-500 ml-2">Professional Resume Builder</span>
+            </div>
           </div>
         
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-3">
           <Button 
             onClick={handleCompileTemplate}
             variant="ghost" 
             size="sm" 
-            className="flex items-center gap-1 text-xs"
+            className="flex items-center gap-2 text-sm font-medium text-gray-700 hover:text-gray-900 hover:bg-gray-100"
           >
-            <FileText className="w-3 h-3" />
+            <FileText className="w-4 h-4" />
             Template
           </Button>
           
@@ -218,30 +221,30 @@ function App() {
           <NavigationMenu>
             <NavigationMenuList>
               <NavigationMenuItem>
-                <NavigationMenuTrigger className="h-8 text-xs font-medium flex items-center gap-1">
-                  <Palette className="w-3 h-3" />
+                <NavigationMenuTrigger className="h-9 px-4 text-sm font-medium flex items-center gap-2 bg-gray-50 hover:bg-gray-100 border-0 text-gray-700">
+                  <Palette className="w-4 h-4" />
                   {getTemplateDisplayName(currentTheme)}
                 </NavigationMenuTrigger>
                 <NavigationMenuContent>
-                  <div className="grid gap-1 p-2 w-48">
+                  <div className="grid gap-2 p-3 w-64">
                     {availableTemplates
                       .filter(template => template.name !== 'presets') // Exclude presets folder
                       .map((template) => (
                         <NavigationMenuLink asChild key={template.name}>
                           <button
                             onClick={() => handleThemeSwitch(template.name)}
-                            className={`flex items-start gap-2 rounded-md p-2 hover:bg-accent transition-colors text-left text-xs ${
-                              currentTheme === template.name ? 'bg-accent' : ''
+                            className={`flex items-start gap-3 rounded-lg p-3 hover:bg-gray-50 transition-colors text-left ${
+                              currentTheme === template.name ? 'bg-gray-100 ring-2 ring-gray-400 ring-opacity-30' : ''
                             }`}
                           >
-                            <div className={`w-2 h-2 rounded mt-1 ${
-                              template.name === 'minimal-1' ? 'bg-blue-500' : 
-                              template.name === 'minimal-2' ? 'bg-green-500' :
-                              'bg-purple-500'
+                            <div className={`w-3 h-3 rounded-full mt-1 ${
+                              template.name === 'minimal-1' ? 'bg-gray-600' : 
+                              template.name === 'minimal-2' ? 'bg-gray-700' :
+                              'bg-gray-500'
                             }`}></div>
-                            <div>
-                              <div className="font-medium">{template.config?.displayName || template.name}</div>
-                              <div className="text-gray-500">{template.config?.description || 'No description'}</div>
+                            <div className="flex-1">
+                              <div className="font-medium text-sm text-gray-900">{template.config?.displayName || template.name}</div>
+                              <div className="text-gray-500 text-xs mt-1">{template.config?.description || 'No description'}</div>
                             </div>
                           </button>
                         </NavigationMenuLink>
@@ -252,62 +255,69 @@ function App() {
             </NavigationMenuList>
           </NavigationMenu>
           
-          <Button 
-            onClick={handleCompile} 
-            disabled={isCompiling}
-            className="flex items-center gap-1 h-8 text-xs"
-            size="sm"
-          >
-            <Play className="w-3 h-3" />
-            {isCompiling ? 'Compiling...' : 'Compile'}
-          </Button>
-          <Button 
-            variant="ghost" 
-            size="sm" 
-            className="flex items-center gap-1 text-xs h-8"
-            onClick={handleDownloadPdf}
-            disabled={!pdfUrl}
-          >
-            <Download className="w-3 h-3" />
-            Export
-          </Button>
+          <div className="flex items-center gap-2">
+            <Button 
+              onClick={handleCompile} 
+              disabled={isCompiling}
+              className="flex items-center gap-2 h-9 px-4 bg-gray-800 hover:bg-gray-900 text-white"
+              size="sm"
+            >
+              <Play className="w-4 h-4" />
+              {isCompiling ? 'Compiling...' : 'Compile'}
+            </Button>
+            <Button 
+              variant="outline" 
+              size="sm" 
+              className="flex items-center gap-2 h-9 px-4 border-gray-300 text-gray-700 hover:bg-gray-50"
+              onClick={handleDownloadPdf}
+              disabled={!pdfUrl}
+            >
+              <Download className="w-4 h-4" />
+              Export
+            </Button>
+          </div>
           <ConfigPanel onConfigUpdate={handleRefresh} />
         </div>
         </div>
       </header>
 
       {/* Main Content */}
-      <div className="flex-1 flex min-h-0">
-        {/* Editor Panel */}
-        <div className="w-1/2 border-r border-gray-200 bg-white flex flex-col">
-          <div className="p-4 border-b border-gray-100 bg-gray-50">
-            <h2 className="text-lg font-medium text-gray-900">Typst Editor</h2>
-            <p className="text-sm text-gray-600">Edit your resume content using Typst markup</p>
-          </div>
-          <div className="flex-1 p-4 min-h-0">
+      <div className="flex-1 flex overflow-hidden bg-gray-50">
+        {/* Sidebar - Editor */}
+        <div className="w-1/2 flex flex-col bg-white border-r border-gray-200 shadow-sm">
+          <div className="flex-1 p-6 overflow-hidden">
             {isLoading ? (
               <div className="flex items-center justify-center h-full">
-                <div className="text-gray-500">Loading template...</div>
+                <div className="flex flex-col items-center gap-3">
+                  <div className="w-8 h-8 border-4 border-gray-400 border-t-transparent rounded-full animate-spin"></div>
+                  <div className="text-gray-500 font-medium">Loading template...</div>
+                </div>
               </div>
             ) : (
-              <BlockEditor
-                content={typstContent}
-                onChange={setTypstContent}
-                currentTemplate={currentTemplateConfig}
-              />
+              <div className="h-full bg-gray-50 rounded-lg border border-gray-200 shadow-inner">
+                <BlockEditor
+                  content={typstContent}
+                  onChange={setTypstContent}
+                  currentTemplate={currentTemplateConfig}
+                />
+              </div>
             )}
           </div>
         </div>
 
         {/* Preview Panel */}
-        <div className="w-1/2 flex flex-col min-h-0">
-          <TypstPreview
-            content={compiledOutput}
-            isCompiling={isCompiling}
-            onRefresh={handleRefresh}
-            pdfUrl={pdfUrl}
-            error={compilationError}
-          />
+        <div className="w-1/2 flex flex-col bg-gray-50">
+          <div className="flex-1 p-6 overflow-hidden">
+            <div className="h-full bg-white rounded-lg shadow-lg border border-gray-200">
+              <TypstPreview
+                content={compiledOutput}
+                isCompiling={isCompiling}
+                onRefresh={handleRefresh}
+                pdfUrl={pdfUrl}
+                error={compilationError}
+              />
+            </div>
+          </div>
         </div>
       </div>
     </div>

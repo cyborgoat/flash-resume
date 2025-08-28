@@ -656,7 +656,7 @@ export function BlockEditor({ content, onChange, currentTemplate }: BlockEditorP
           </div>
         )}
         
-        <TabsContent value="blocks" className="flex-1 flex flex-col mt-4 overflow-hidden">
+        <TabsContent value="blocks" className="flex-1 flex flex-col mt-4 overflow-hidden px-4">
           <div className="flex-1 overflow-y-auto pr-2">
             <Accordion type="multiple" defaultValue={["personal-info"]} className="w-full">
               {resumeSections.map((section) => {
