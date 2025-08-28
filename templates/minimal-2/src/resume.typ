@@ -1,27 +1,26 @@
 // Resume template wrapper for minimal-2
-// This file provides a consistent interface by applying configuration
+// This file loads configuration from JSON and applies it
 
 #import "lib.typ"
-#import "../../config-loader.typ": load-config, get-alignment
 
-// Load configuration
-#let config = load-config()
+// Load template configuration from JSON
+#let config = json("../conf.json")
 
-// Theme-specific wrapper function that applies configuration
+// Theme-specific wrapper function that loads configuration from JSON
 #let minimal2-resume(author-info, body) = {
   lib.resume(
     // Pass the full author-info object as minimal-2 expects it
     author: author-info,
-    // Apply configuration-driven settings
-    profile-picture: if config.profile-picture { image } else { none },
-    date: if config.show-date { datetime.today().display(config.date-format) } else { none },
+    // Apply configuration from conf.json
+    profile-picture: if config.features.profile_picture { image } else { none },
+    date: if config.features.show_date { datetime.today().display(config.features.date_format) } else { none },
     language: "en",
-    colored-headers: config.colored-headers,
-    show-footer: config.show-footer,
-    paper-size: config.paper-size,
-    accent-color: config.accent-color,
-    font: (config.primary-font,),
-    header-font: (config.header-font,),
+    colored-headers: config.features.colored_headers,
+    show-footer: config.features.show_footer,
+    paper-size: config.style.paper_size,
+    accent-color: rgb(config.style.accent_color),
+    font: (config.style.primary_font,),
+    header-font: (config.style.header_font,),
     body
   )
 }

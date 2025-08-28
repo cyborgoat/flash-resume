@@ -15,7 +15,8 @@ import {
   DialogTitle, 
   DialogFooter 
 } from './ui/dialog'
-import { Edit, Trash2, GraduationCap, Briefcase, Code, Award, User, FileText, Trophy, Hash, Calculator, Plus } from 'lucide-react'
+import { Edit, Trash2, GraduationCap, Briefcase, Code, Award, User, FileText, Trophy, Hash, Calculator, Plus, AlertTriangle } from 'lucide-react'
+import type { TemplateConfig } from '../lib/resume-data'
 
 // Resume section configuration with professional ordering
   const resumeSections: ResumeSection[] = [
@@ -234,9 +235,10 @@ interface ResumeSection {
 interface BlockEditorProps {
   content: string
   onChange: (content: string) => void
+  currentTemplate: TemplateConfig | null
 }
 
-export function BlockEditor({ content, onChange }: BlockEditorProps) {
+export function BlockEditor({ content, onChange, currentTemplate }: BlockEditorProps) {
   const [mode, setMode] = useState<'blocks' | 'text'>('blocks')
   const [blocks, setBlocks] = useState<ResumeBlock[]>([])
   const [editingBlock, setEditingBlock] = useState<ResumeBlock | null>(null)
@@ -263,6 +265,11 @@ export function BlockEditor({ content, onChange }: BlockEditorProps) {
   // Convert blocks to text content with proper ordering
   const convertBlocksToText = (blockList: ResumeBlock[]): string => {
     let textContent = ''
+    
+    // Add template import (this should be dynamic based on current template)
+    textContent += `#import "src/resume.typ": *
+
+`
     
     // Add personal info first
     const personalBlocks = blockList.filter(block => block.sectionId === 'personal-info')
@@ -405,7 +412,7 @@ export function BlockEditor({ content, onChange }: BlockEditorProps) {
         
         // Determine block type and section
         let blockType = 'content'
-        let sectionId = 'activities'
+        let sectionId = 'additional'
         let title = 'Content Block'
         
         if (line.includes('education(')) {
@@ -422,7 +429,7 @@ export function BlockEditor({ content, onChange }: BlockEditorProps) {
           title = 'Project'
         } else if (line.includes('extracurriculars(')) {
           blockType = 'extracurriculars'
-          sectionId = 'activities'
+          sectionId = 'additional'
           title = 'Extracurriculars'
         } else if (line.includes('skill(')) {
           blockType = 'skill'
@@ -430,7 +437,7 @@ export function BlockEditor({ content, onChange }: BlockEditorProps) {
           title = 'Skills'
         } else if (line.includes('entry(')) {
           blockType = 'entry'
-          sectionId = 'activities'
+          sectionId = 'additional'
           title = 'Entry'
         } else if (line.includes('certification(')) {
           blockType = 'certification'
@@ -446,7 +453,7 @@ export function BlockEditor({ content, onChange }: BlockEditorProps) {
           title = 'GPA'
         } else if (line.includes('item[')) {
           blockType = 'item'
-          sectionId = 'activities'
+          sectionId = 'additional'
           title = 'Item'
         }
         
@@ -550,19 +557,51 @@ export function BlockEditor({ content, onChange }: BlockEditorProps) {
     setMode(newMode)
   }
 
+  // Check if a block type is supported by the current template
+  const isBlockSupported = (blockType: string): boolean => {
+    if (!currentTemplate) {
+      return true // Default to supported if no template config
+    }
+    
+    // Core functions are always supported (like personal-info)
+    if (currentTemplate.coreFunctions && currentTemplate.coreFunctions.includes(blockType)) {
+      return true
+    }
+    
+    // Check if it's in the regular functions list
+    if (currentTemplate.functions && currentTemplate.functions.includes(blockType)) {
+      return true
+    }
+    
+    return false
+  }
+
   const renderBlockContent = (block: ResumeBlock) => {
     const blockTypeDef = blockTypeDefinitions[block.type as keyof typeof blockTypeDefinitions]
     const Icon = blockTypeDef?.icon || FileText
+    const isSupported = isBlockSupported(block.type)
 
     return (
       <div 
         id={`block-${block.id}`}
-        className="border rounded-lg p-4 mb-3 bg-white hover:bg-gray-50 transition-colors"
+        className={`border rounded-lg p-4 mb-3 transition-colors ${
+          isSupported 
+            ? 'bg-white hover:bg-gray-50' 
+            : 'bg-yellow-50 border-yellow-200 hover:bg-yellow-100'
+        }`}
       >
         <div className="flex items-center justify-between mb-2">
           <div className="flex items-center gap-2">
+            {!isSupported && (
+              <AlertTriangle className="w-4 h-4 text-yellow-600" />
+            )}
             <Icon className="w-4 h-4 text-gray-600" />
             <span className="font-medium text-sm">{block.title}</span>
+            {!isSupported && (
+              <span className="text-xs bg-yellow-200 text-yellow-800 px-2 py-1 rounded">
+                Not supported in {currentTemplate?.displayName || 'current theme'}
+              </span>
+            )}
           </div>
           <div className="flex gap-1">
             <Button
@@ -602,6 +641,21 @@ export function BlockEditor({ content, onChange }: BlockEditorProps) {
           <TabsTrigger value="text">Text Mode</TabsTrigger>
         </TabsList>
         
+        {/* Warning banner for unsupported blocks */}
+        {currentTemplate && blocks.some(block => !isBlockSupported(block.type)) && (
+          <div className="bg-yellow-50 border-l-4 border-yellow-400 p-3 mb-4">
+            <div className="flex">
+              <AlertTriangle className="h-5 w-5 text-yellow-400" />
+              <div className="ml-3">
+                <p className="text-sm text-yellow-700">
+                  <strong>Theme Compatibility Warning:</strong> Some blocks use functions not supported by "{currentTemplate.displayName}". 
+                  These blocks are highlighted in yellow and may not render correctly.
+                </p>
+              </div>
+            </div>
+          </div>
+        )}
+        
         <TabsContent value="blocks" className="flex-1 flex flex-col mt-4 overflow-hidden">
           <div className="flex-1 overflow-y-auto pr-2">
             <Accordion type="multiple" defaultValue={["personal-info"]} className="w-full">
@@ -638,20 +692,33 @@ export function BlockEditor({ content, onChange }: BlockEditorProps) {
                             
                             const Icon = blockDef.icon
                             const canAdd = section.allowMultiple || sectionBlocks.length === 0
+                            const isSupported = isBlockSupported(blockType)
+                            
+                            // Only show function warnings, not section limit warnings
+                            const showFunctionWarning = !isSupported
                             
                             return (
-                              <Button
-                                key={blockType}
-                                variant="outline"
-                                size="sm"
-                                onClick={() => addBlock(section.id, blockType)}
-                                disabled={!canAdd}
-                                className="flex items-center gap-2"
-                              >
-                                <Plus className="w-4 h-4" />
-                                <Icon className="w-4 h-4" />
-                                {blockDef.label.split(' ')[0]}
-                              </Button>
+                              <div key={blockType} className="relative">
+                                <Button
+                                  variant="outline"
+                                  size="sm"
+                                  onClick={() => addBlock(section.id, blockType)}
+                                  disabled={!canAdd}
+                                  className={`flex items-center gap-2 ${
+                                    showFunctionWarning ? 'border-yellow-300 bg-yellow-50 text-yellow-800' : ''
+                                  }`}
+                                  title={showFunctionWarning ? `This function is not supported in ${currentTemplate?.displayName || 'current theme'}` : 
+                                         !canAdd ? `Only one ${section.title.toLowerCase()} block allowed` : ''}
+                                >
+                                  <Plus className="w-4 h-4" />
+                                  {showFunctionWarning && <AlertTriangle className="w-3 h-3" />}
+                                  <Icon className="w-4 h-4" />
+                                  {blockDef.label.split(' ')[0]}
+                                </Button>
+                                {showFunctionWarning && (
+                                  <div className="absolute -top-1 -right-1 w-2 h-2 bg-yellow-500 rounded-full"></div>
+                                )}
+                              </div>
                             )
                           })}
                         </div>

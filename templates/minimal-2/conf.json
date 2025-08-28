@@ -1,0 +1,54 @@
+{
+  "name": "minimal-2",
+  "displayName": "Minimal Modern",
+  "description": "Modern design with enhanced typography and layout options",
+  "mainFile": "main.typ",
+  "coreFunctions": [
+    "personal-info"
+  ],
+  "functions": [
+    "education",
+    "experience",
+    "project",
+    "skill",
+    "entry",
+    "item",
+    "gpa",
+    "certification",
+    "skill-item"
+  ],
+  "style": {
+    "primary_font": "Arial",
+    "header_font": "Arial",
+    "font_size": "10pt",
+    "header_font_size": "20pt",
+    "accent_color": "#4c20eaff",
+    "text_color": "#d03d3dff",
+    "link_color": "#309605ff",
+    "header_color": "#26428b",
+    "paper_size": "a4",
+    "margins": "0.5in",
+    "line_spacing": "0.5em"
+  },
+  "formatting": {
+    "show_section_lines": true,
+    "section_spacing": "0.4em",
+    "entry_spacing": "0.25em",
+    "author_position": "left",
+    "contact_position": "left",
+    "contact_separator": "  |  "
+  },
+  "features": {
+    "colored_headers": true,
+    "show_footer": false,
+    "show_icons": true,
+    "profile_picture": false,
+    "show_date": true,
+    "date_format": "[month repr:long] [day], [year]"
+  },
+  "advanced": {
+    "disable_ligatures": true,
+    "justify_text": true,
+    "hyphenation": false
+  }
+}

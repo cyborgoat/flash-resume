@@ -1,8 +1,7 @@
 #import "@preview/scienceicons:0.1.0": orcid-icon
-#import "../../config-loader.typ": load-config, get-alignment
 
-// Load configuration
-#let config = load-config()
+// Load template configuration from JSON
+#let config = json("../conf.json")
 
 // Core resume function (internal to theme)
 #let base-resume(
@@ -338,12 +337,12 @@
   v(0.2em)
 }
 
-// Theme-specific wrapper function that applies configuration
+// Theme-specific wrapper function that loads configuration from JSON
 #let minimal1-resume(author-info, body) = {
   base-resume(
     // Extract author name from author-info
     author: author-info.firstname + " " + author-info.lastname,
-    // Apply configuration-driven settings
+    // Apply configuration from conf.json
     pronouns: "",
     location: author-info.address,
     email: author-info.email,
@@ -352,19 +351,19 @@
     phone: author-info.phone,
     personal-site: author-info.homepage,
     orcid: author-info.orcid,
-    accent-color: config.accent-color,
-    font: config.primary-font,
-    paper: config.paper-size,
-    author-font-size: config.header-font-size,
-    font-size: config.font-size,
-    author-position: get-alignment(config.author-position),
-    personal-info-position: get-alignment(config.contact-position),
+    accent-color: rgb(config.style.accent_color),
+    font: config.style.primary_font,
+    paper: config.style.paper_size,
+    author-font-size: eval(config.style.header_font_size),
+    font-size: eval(config.style.font_size),
+    author-position: if config.formatting.author_position == "left" { left } else if config.formatting.author_position == "center" { center } else { right },
+    personal-info-position: if config.formatting.contact_position == "left" { left } else if config.formatting.contact_position == "center" { center } else { right },
     body
   )
 }
 
 // ==============================================================================
-// PUBLIC INTERFACE - Export the theme-configured resume function
+// PUBLIC INTERFACE - Export the resume function
 // ==============================================================================
 // This is what gets imported when using this theme
 #let resume = minimal1-resume

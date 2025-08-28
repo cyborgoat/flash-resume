@@ -1,0 +1,55 @@
+{
+  "name": "minimal-1",
+  "displayName": "Minimal Classic",
+  "description": "Clean and professional layout with traditional formatting",
+  "mainFile": "main.typ",
+  "coreFunctions": [
+    "personal-info"
+  ],
+  "functions": [
+    "education",
+    "experience",
+    "project",
+    "extracurriculars",
+    "skill",
+    "entry",
+    "item",
+    "gpa",
+    "certification",
+    "skill-item"
+  ],
+  "style": {
+    "primary_font": "New Computer Modern",
+    "header_font": "New Computer Modern",
+    "font_size": "10pt",
+    "header_font_size": "20pt",
+    "accent_color": "#F33425",
+    "text_color": "#000000",
+    "link_color": "#000000",
+    "header_color": "#000000",
+    "paper_size": "us-letter",
+    "margins": "0.5in",
+    "line_spacing": "0.5em"
+  },
+  "formatting": {
+    "show_section_lines": true,
+    "section_spacing": "0.4em",
+    "entry_spacing": "0.25em",
+    "author_position": "left",
+    "contact_position": "left",
+    "contact_separator": "  |  "
+  },
+  "features": {
+    "colored_headers": false,
+    "show_footer": false,
+    "show_icons": true,
+    "profile_picture": false,
+    "show_date": false,
+    "date_format": "[month repr:long] [day], [year]"
+  },
+  "advanced": {
+    "disable_ligatures": true,
+    "justify_text": false,
+    "hyphenation": false
+  }
+}
